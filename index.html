@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Weather App with live location and offline support">
+    <meta name="theme-color" content="#1e3a5f">
+    <title>Maryam Weather</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌤️</text></svg>">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">🌤️</span>
+                <span class="logo-text">Maryam Weather</span>
+            </div>
+            <div class="header-actions">
+                <button id="refreshBtn" class="icon-btn" title="Refresh">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6"/>
+                        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+                    </svg>
+                </button>
+                <button id="locationBtn" class="icon-btn" title="Use my location">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="3"/>
+                        <line x1="12" y1="2" x2="12" y2="4"/>
+                        <line x1="12" y1="20" x2="12" y2="22"/>
+                        <line x1="2" y1="12" x2="4" y2="12"/>
+                        <line x1="20" y1="12" x2="22" y2="12"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Status Bar -->
+        <div id="statusBar" class="status-bar">
+            <span id="connectionStatus" class="status-dot online"></span>
+            <span id="statusText">Online</span>
+            <span id="lastUpdated" class="last-updated"></span>
+        </div>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-box">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search city..." autocomplete="off">
+                <button id="searchBtn" class="search-btn">Search</button>
+            </div>
+            <div id="searchResults" class="search-results"></div>
+        </section>
+
+        <!-- Main Weather Display -->
+        <main id="weatherMain" class="weather-main">
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state">
+                <div class="loader"></div>
+                <p>Getting weather data...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-state hidden">
+                <div class="error-icon">⚠️</div>
+                <h3 id="errorTitle">Unable to fetch weather</h3>
+                <p id="errorMessage">Please check your connection or try again</p>
+                <button id="retryBtn" class="retry-btn">Try Again</button>
+            </div>
+
+            <!-- Weather Content -->
+            <div id="weatherContent" class="weather-content hidden">
+                <!-- Current Weather Card -->
+                <div class="current-weather-card">
+                    <div class="weather-header">
+                        <div class="location-info">
+                            <h2 id="cityName">Loading...</h2>
+                            <p id="countryName"></p>
+                        </div>
+                        <div class="weather-icon" id="weatherIcon">
+                            <span id="mainIcon">🌤️</span>
+                        </div>
+                    </div>
+
+                    <div class="temperature-display">
+                        <div class="temp-value">
+                            <span id="currentTemp">--</span>
+                            <span class="temp-unit">°C</span>
+                        </div>
+                        <div class="weather-description" id="weatherDescription">--</div>
+                    </div>
+
+                    <div class="weather-details">
+                        <div class="detail-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20M2 12h20"/>
+                                <circle cx="12" cy="12" r="4"/>
+                            </svg>
+                            <div class="detail-info">
+                                <span class="detail-label">Feels Like</span>
+                                <span class="detail-value" id="feelsLike">--°</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/>
+                            </svg>
+                            <div class="detail-info">
+                                <span class="detail-label">Humidity</span>
+                                <span class="detail-value" id="humidity">--%</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2"/>
+                            </svg>
+                            <div class="detail-info">
+                                <span class="detail-label">Wind</span>
+                                <span class="detail-value" id="windSpeed">-- km/h</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5"/>
+                                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                            </svg>
+                            <div class="detail-info">
+                                <span class="detail-label">UV Index</span>
+                                <span class="detail-value" id="uvIndex">--</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"/>
+                                <circle cx="12" cy="12" r="4"/>
+                            </svg>
+                            <div class="detail-info">
+                                <span class="detail-label">Visibility</span>
+                                <span class="detail-value" id="visibility">-- km</span>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v6l3 3"/>
+                                <circle cx="12" cy="14" r="8"/>
+                            </svg>
+                            <div class="detail-info">
+                                <span class="detail-label">Pressure</span>
+                                <span class="detail-value" id="pressure">-- hPa</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hourly Forecast -->
+                <div class="forecast-section">
+                    <h3 class="section-title">Hourly Forecast</h3>
+                    <div id="hourlyForecast" class="hourly-forecast">
+                        <!-- Hourly items will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Daily Forecast -->
+                <div class="forecast-section">
+                    <h3 class="section-title">7-Day Forecast</h3>
+                    <div id="dailyForecast" class="daily-forecast">
+                        <!-- Daily items will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Offline Notice -->
+        <div id="offlineNotice" class="offline-notice hidden">
+            <span class="offline-icon">📡</span>
+            <span>You're offline. Showing cached data.</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
